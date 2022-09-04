@@ -4,7 +4,8 @@ import Button from "react-bootstrap/Button";
 const CreateTask = (props) => {
   return (
     <Button
-      style={{ width: "150px", marginTop: "50px" }}
+      className="mt-2 mx-auto"
+      style={{ width: "100px" }}
       as="input"
       type="button"
       value="Add task"

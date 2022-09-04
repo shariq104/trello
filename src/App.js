@@ -74,7 +74,8 @@ function App() {
     setShow(false);
   };
 
-  const moveItem = (itemId, currentBoard, targetBoard) => {
+
+  const moveEditDelete = (itemId, currentBoard, targetBoard = null, action) => {
     let sourceBoard = _.find(data, (el) => el.boardId === currentBoard);
     let sourceBoardIndex = _.findIndex(
       data,
@@ -85,9 +86,27 @@ function App() {
       (el) => el.itemId === itemId
     );
     let item = _.find(sourceBoard.items, (el) => el.itemId === itemId);
-    let destBoardIndex = _.findIndex(data, (el) => el.boardId === targetBoard);
-    data[destBoardIndex].items.push(item);
-    data[sourceBoardIndex].items.splice(itemIndex, 1);
+
+    // edit
+    if (action === "edit") {
+      data[sourceBoardIndex].items[itemIndex].title = targetBoard;
+    }
+
+    //delete
+    else if (action === "delete") {
+      data[sourceBoardIndex].items.splice(itemIndex, 1);
+    }
+
+    //move
+    else if (action === "move") {
+      let destBoardIndex = _.findIndex(
+        data,
+        (el) => el.boardId === targetBoard
+      );
+      data[destBoardIndex].items.push(item);
+      data[sourceBoardIndex].items.splice(itemIndex, 1);
+    }
+
     setData(data);
     localStorage.setItem("appData", JSON.stringify(data));
     forceUpdate();
@@ -95,19 +114,21 @@ function App() {
 
   return (
     <>
-      <Container className="mt-4">
+      <Container className="my-4">
+        <Row className="justify-content-md-center my-4">
+          <CreateBoard createBoard={createBoard} />
+        </Row>
         <Row className="justify-content-md-center">
           {data.map((board) => (
-            <Col md="auto">
+            <Col md="auto" className="my-4">
               <Board
                 data={board}
                 createCard={createCard}
                 boardData={boardData}
-                moveItem={moveItem}
+                moveEditDelete={moveEditDelete}
               />
             </Col>
           ))}
-          <CreateBoard createBoard={createBoard} />
         </Row>
       </Container>
       <PopUp
