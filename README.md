@@ -1,7 +1,7 @@
 ## Available Scripts
 
 In the project directory, you first install npm packages using the following command:
-### `npm start`
+### `npm install`
 
 After installing npm packages, use following command to run the app locally:
 ### `npm start`
