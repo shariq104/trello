@@ -11,6 +11,8 @@ import useForceUpdate from "./components/custom hooks/rerender";
 const _ = require("lodash");
 
 function App() {
+
+  //initial data loading from local storage (if any)
   const [data, setData] = useState(
     localStorage.getItem("appData")
       ? JSON.parse(localStorage.getItem("appData"))
@@ -21,6 +23,7 @@ function App() {
     getBoards();
   }, [data]);
 
+  // useStates
   const [show, setShow] = useState(false);
   const [title, setTitle] = useState("");
   const [boardId, setboardId] = useState("");
@@ -35,6 +38,7 @@ function App() {
     handleShow();
   };
 
+  // Function Implementations
   const createCard = (boardId) => {
     setboardId(boardId);
     setModalType("task");
@@ -49,7 +53,9 @@ function App() {
     setboardData(boards);
   };
 
+  // Function to create a new board or card
   const handleSave = () => {
+    // for new board
     if (title != "" && modalType == "board") {
       setData(() => [
         ...data,
@@ -59,7 +65,9 @@ function App() {
           items: [],
         },
       ]);
-    } else if (title != "" && modalType == "task") {
+    } 
+    // for new task/card
+    else if (title != "" && modalType == "task") {
       const index = data
         .map((e) => {
           return e.boardId;
@@ -74,7 +82,7 @@ function App() {
     setShow(false);
   };
 
-
+  // Only one function to move cards, edit them or delete them
   const moveEditDelete = (itemId, currentBoard, targetBoard = null, action) => {
     let sourceBoard = _.find(data, (el) => el.boardId === currentBoard);
     let sourceBoardIndex = _.findIndex(

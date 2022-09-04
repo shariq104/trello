@@ -7,20 +7,21 @@ import { Trash, Pencil, Check } from "react-bootstrap-icons";
 const Task = (props) => {
   const { data, boardData, boardId, moveEditDelete } = props;
 
+  // Only for editing the text on cards
   const [editTitle, setEditTitle] = useState(data.title);
   const [isEdit, setIsEdit] = useState(false);
-
-  const boards = Array.from(boardData);
-
-  const indexOfObject = boards.findIndex((object) => {
-    return object.boardId === boardId;
-  });
-  boards.splice(indexOfObject, 1);
-
   const saveNewText = () => {
     setIsEdit(false);
     moveEditDelete(data.itemId, boardId, editTitle, "edit");
   };
+  // =======================================
+
+  // hides the name of the current board from dropdown
+  const boards = Array.from(boardData);
+  const indexOfObject = boards.findIndex((object) => {
+    return object.boardId === boardId;
+  });
+  boards.splice(indexOfObject, 1);
 
   return (
     <Card style={{ width: "100%" }}>
