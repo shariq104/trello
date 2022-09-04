@@ -7,6 +7,8 @@ import Col from "react-bootstrap/Col";
 import Board from "./components/board";
 import CreateBoard from "./components/buttons/createBoard";
 import PopUp from "./components/modal/popup";
+import useForceUpdate from "./components/custom hooks/rerender";
+const _ = require("lodash");
 
 function App() {
   const [data, setData] = useState(
@@ -16,13 +18,15 @@ function App() {
   );
 
   useEffect(() => {
-    localStorage.setItem("appData", JSON.stringify(data));
+    getBoards();
   }, [data]);
 
   const [show, setShow] = useState(false);
   const [title, setTitle] = useState("");
   const [boardId, setboardId] = useState("");
+  const [boardData, setboardData] = useState("");
   const [modalType, setModalType] = useState("board");
+  const forceUpdate = useForceUpdate();
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
@@ -37,6 +41,14 @@ function App() {
     handleShow();
   };
 
+  const getBoards = () => {
+    const boards = [];
+    data.map((e) => {
+      boards.push({ boardId: e.boardId, boardTitle: e.boardTitle });
+    });
+    setboardData(boards);
+  };
+
   const handleSave = () => {
     if (title != "" && modalType == "board") {
       setData(() => [
@@ -48,18 +60,37 @@ function App() {
         },
       ]);
     } else if (title != "" && modalType == "task") {
-      debugger;
       const index = data
         .map((e) => {
           return e.boardId;
         })
         .indexOf(boardId);
-      debugger;
 
       data[index].items.push({ itemId: uuidv4(), boardId, title });
       setData(data);
     }
+    localStorage.setItem("appData", JSON.stringify(data));
+    getBoards();
     setShow(false);
+  };
+
+  const moveItem = (itemId, currentBoard, targetBoard) => {
+    let sourceBoard = _.find(data, (el) => el.boardId === currentBoard);
+    let sourceBoardIndex = _.findIndex(
+      data,
+      (el) => el.boardId === currentBoard
+    );
+    let itemIndex = _.findIndex(
+      sourceBoard.items,
+      (el) => el.itemId === itemId
+    );
+    let item = _.find(sourceBoard.items, (el) => el.itemId === itemId);
+    let destBoardIndex = _.findIndex(data, (el) => el.boardId === targetBoard);
+    data[destBoardIndex].items.push(item);
+    data[sourceBoardIndex].items.splice(itemIndex, 1);
+    setData(data);
+    localStorage.setItem("appData", JSON.stringify(data));
+    forceUpdate();
   };
 
   return (
@@ -68,7 +99,12 @@ function App() {
         <Row className="justify-content-md-center">
           {data.map((board) => (
             <Col md="auto">
-              <Board data={board} createCard={createCard} />{" "}
+              <Board
+                data={board}
+                createCard={createCard}
+                boardData={boardData}
+                moveItem={moveItem}
+              />
             </Col>
           ))}
           <CreateBoard createBoard={createBoard} />

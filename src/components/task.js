@@ -3,20 +3,33 @@ import Card from "react-bootstrap/Card";
 import Dropdown from "react-bootstrap/Dropdown";
 
 const Task = (props) => {
-  const { title } = props.data;
+  const { data, boardData, boardId, moveItem } = props;
+  const boards = Array.from(boardData);
+
+  const indexOfObject = boards.findIndex((object) => {
+    return object.boardId === boardId;
+  });
+
+  boards.splice(indexOfObject, 1);
   return (
     <Card style={{ width: "100%" }}>
       <Card.Body>
-        <Card.Title>{title}</Card.Title>
+        <Card.Title>{data.title}</Card.Title>
         <Dropdown>
           <Dropdown.Toggle variant="success" id="dropdown-basic">
-            Dropdown Button
+            Move to...
           </Dropdown.Toggle>
 
           <Dropdown.Menu>
-            <Dropdown.Item href="#/action-1">Action</Dropdown.Item>
-            <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
-            <Dropdown.Item href="#/action-3">Something else</Dropdown.Item>
+            {boards.map((item) => {
+              return (
+                <Dropdown.Item
+                  onClick={() => moveItem(data.itemId, boardId, item.boardId)}
+                >
+                  {item.boardTitle}
+                </Dropdown.Item>
+              );
+            })}
           </Dropdown.Menu>
         </Dropdown>
       </Card.Body>
