@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import "./App.css";
 import Container from "react-bootstrap/Container";
@@ -9,27 +9,20 @@ import CreateBoard from "./components/buttons/createBoard";
 import PopUp from "./components/modal/popup";
 
 function App() {
-  let data = [
-    {
-      boardId: uuidv4(),
-      boardTitle: "Board 1",
-      items: [
-        { itemId: uuidv4(), boardId: 1, title: "Item 1" },
-        { itemId: uuidv4(), boardId: 1, title: "Item 2" },
-        { itemId: uuidv4(), boardId: 1, title: "Item 3" },
-      ],
-    },
-    {
-      boardId: uuidv4(),
-      boardTitle: "Board 2",
-      items: [
-        { itemId: uuidv4(), boardId: 2, title: "Item 1" },
-        { itemId: uuidv4(), boardId: 2, title: "Item 2" },
-      ],
-    },
-  ];
+  let appData;
+  useEffect(() => {
+    appData = localStorage.getItem("appData");
+  }, []);
+
+  const [data, setData] = useState(appData ? appData : []);
+
+  useEffect(() => {
+    localStorage.setItem("appData", data);
+  }, [data]);
 
   const [show, setShow] = useState(false);
+  const [title, setTitle] = useState("");
+  const [boardId, setboardId] = useState("");
   const [modalType, setModalType] = useState("board");
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -39,9 +32,35 @@ function App() {
     handleShow();
   };
 
-  const createCard = (boardId, title) => {
-    setModalType("card");
+  const createCard = (boardId) => {
+    setboardId(boardId);
+    setModalType("task");
     handleShow();
+  };
+
+  const handleSave = () => {
+    if (title != "" && modalType == "board") {
+      setData(() => [
+        ...data,
+        {
+          boardId: uuidv4(),
+          boardTitle: title,
+          items: [],
+        },
+      ]);
+    } else if (title != "" && modalType == "task") {
+      debugger;
+      const index = data
+        .map((e) => {
+          return e.boardId;
+        })
+        .indexOf(boardId);
+      debugger;
+
+      data[index].items.push({ itemId: uuidv4(), boardId, title });
+      setData(data);
+    }
+    setShow(false);
   };
 
   return (
@@ -50,13 +69,19 @@ function App() {
         <Row className="justify-content-md-center">
           {data.map((board) => (
             <Col md="auto">
-              <Board data={board} />
+              <Board data={board} createCard={createCard} />{" "}
             </Col>
           ))}
           <CreateBoard createBoard={createBoard} />
         </Row>
       </Container>
-      <PopUp type={modalType} handleClose={handleClose} show={show} />
+      <PopUp
+        type={modalType}
+        handleClose={handleClose}
+        handleSave={handleSave}
+        show={show}
+        setTitle={setTitle}
+      />
     </>
   );
 }
