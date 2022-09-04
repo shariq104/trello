@@ -9,15 +9,14 @@ import CreateBoard from "./components/buttons/createBoard";
 import PopUp from "./components/modal/popup";
 
 function App() {
-  let appData;
-  useEffect(() => {
-    appData = localStorage.getItem("appData");
-  }, []);
+  const [data, setData] = useState(
+    localStorage.getItem("appData")
+      ? JSON.parse(localStorage.getItem("appData"))
+      : []
+  );
 
-  const [data, setData] = useState(appData ? appData : []);
-
   useEffect(() => {
-    localStorage.setItem("appData", data);
+    localStorage.setItem("appData", JSON.stringify(data));
   }, [data]);
 
   const [show, setShow] = useState(false);
